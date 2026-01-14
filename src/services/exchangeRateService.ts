@@ -1,26 +1,38 @@
 import axios from 'axios';
-
-// Using a free exchange rate API
-const API_BASE_URL = 'https://api.exchangerate-api.com/v4/latest';
+import { API_CONFIG } from '../config/api';
 
 export const fetchExchangeRate = async (
   fromCurrency: string,
   toCurrency: string
 ): Promise<number> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/${fromCurrency}`);
+    // Check if API key is loaded
+    if (!API_CONFIG.EXCHANGE_RATE.API_KEY) {
+      console.error('API Key is missing! Please check your .env file');
+      throw new Error('API Key not configured');
+    }
+
+    const url = `${API_CONFIG.EXCHANGE_RATE.ENDPOINT}/${fromCurrency}`;
+    console.log('Fetching exchange rate from:', url);
+
+    const response = await axios.get(url);
 
     if (
       response.data &&
-      response.data.rates &&
-      response.data.rates[toCurrency]
+      response.data.result === 'success' &&
+      response.data.conversion_rates &&
+      response.data.conversion_rates[toCurrency]
     ) {
-      return response.data.rates[toCurrency];
+      return response.data.conversion_rates[toCurrency];
     }
 
     throw new Error('Exchange rate not found');
   } catch (error) {
     console.error('Error fetching exchange rate:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Response:', error.response?.data);
+      console.error('Status:', error.response?.status);
+    }
     throw error;
   }
 };

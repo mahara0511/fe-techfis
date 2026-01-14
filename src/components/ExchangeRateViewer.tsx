@@ -56,7 +56,6 @@ const ExchangeRateViewer: React.FC<Props> = ({ onSaveRate }) => {
         timestamp: new Date().toISOString(),
       };
       onSaveRate(rateData);
-      alert('Exchange rate saved successfully!');
     }
   };
 

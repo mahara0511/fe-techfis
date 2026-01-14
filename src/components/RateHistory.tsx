@@ -4,9 +4,10 @@ import './RateHistory.css';
 
 interface Props {
   history: ExchangeRate[];
+  loading?: boolean;
 }
 
-const RateHistory: React.FC<Props> = ({ history }) => {
+const RateHistory: React.FC<Props> = ({ history, loading = false }) => {
   const formatDate = (timestamp: string): string => {
     const date = new Date(timestamp);
     return date.toLocaleString('en-US', {
@@ -37,7 +38,12 @@ const RateHistory: React.FC<Props> = ({ history }) => {
         Public history of all saved exchange rates, visible to everyone
       </p>
 
-      {history.length === 0 ? (
+      {loading ? (
+        <div className="empty-state">
+          <div className="loading-spinner">⏳</div>
+          <p>Loading history...</p>
+        </div>
+      ) : history.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📭</div>
           <p>No saved rates yet. Save your first rate above!</p>
