@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Currency, ExchangeRate } from '../types';
 import { fetchExchangeRate } from '../services/exchangeRateService';
 import './ExchangeRateViewer.css';
@@ -25,14 +25,7 @@ const ExchangeRateViewer: React.FC<Props> = ({ onSaveRate }) => {
   const [error, setError] = useState<string>('');
   const [amount, setAmount] = useState<string>('1');
 
-  useEffect(() => {
-    loadExchangeRate();
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(loadExchangeRate, 30000);
-    return () => clearInterval(interval);
-  }, [selectedCurrency]);
-
-  const loadExchangeRate = async () => {
+  const loadExchangeRate = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
@@ -44,7 +37,14 @@ const ExchangeRateViewer: React.FC<Props> = ({ onSaveRate }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCurrency.code]);
+
+  useEffect(() => {
+    loadExchangeRate();
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(loadExchangeRate, 30000);
+    return () => clearInterval(interval);
+  }, [loadExchangeRate]);
 
   const handleSaveRate = () => {
     if (exchangeRate) {
